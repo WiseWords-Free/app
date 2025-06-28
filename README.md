@@ -1,1 +1,1 @@
-![Logo](WiseWords.jpg)
+![Logo](Logo.png)
