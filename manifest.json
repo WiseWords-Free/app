@@ -1,0 +1,33 @@
+{
+    "name": "WiseWords",
+    "short_name": "WiseWords",
+    "start_url": "index.html",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#FFD700",
+    "icons": [
+      {
+        "src": "Logo.png",
+        "type": "image/png",
+        "sizes": "750x750"
+      },
+      {
+        "src": "Logo.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "Logo.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ],
+    "splash_pages": [
+    {
+      "src": "Logo.png",
+      "background_color": "#000000",
+      "theme_color": "#FFD700"
+    }
+  ]
+  }
+  
