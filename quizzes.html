@@ -1,0 +1,3747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Literary Masterworks: Interactive Analysis</title>
+    <style>
+        :root {
+            --primary: #ffffff;
+            --secondary: #8e8e93;
+            --accent: #007aff;
+            --accent-hover: #0056cc;
+            --background: #000000;
+            --surface: #1c1c1e;
+            --surface-secondary: #2c2c2e;
+            --text: #ffffff;
+            --text-secondary: #8e8e93;
+            --success: #30d158;
+            --error: #ff453a;
+            --warning: #ff9f0a;
+            --gold: #ffd700;
+            --purple: #bf5af2;
+            --gradient-primary: linear-gradient(135deg, #007aff, #bf5af2);
+            --gradient-gold: linear-gradient(135deg, #ffd700, #ff9f0a);
+            --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.12);
+            --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
+            --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --border-radius: 12px;
+            --border-radius-large: 20px;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        /* Animated Background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .star {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        /* Back Navigation */
+        .back-nav {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 1000;
+            background: rgba(28, 28, 30, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .back-nav:hover {
+            background: rgba(0, 122, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        /* Progress Counter */
+        .progress-counter {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            background: var(--gradient-gold);
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+            color: var(--background);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        /* Main Container */
+        .main-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            padding: 6rem 2rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        /* Quiz Selection */
+        .quiz-selection {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeInUp 1s ease;
+        }
+        .quiz-selection h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+        .quiz-selection p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+        .quiz-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        .quiz-card {
+            background: var(--surface);
+            border-radius: var(--border-radius-large);
+            padding: 2.5rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .quiz-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        .quiz-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-heavy);
+            border-color: rgba(0, 122, 255, 0.3);
+        }
+        .quiz-card:hover::before {
+            opacity: 0.05;
+        }
+        .quiz-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-primary);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 1.5rem;
+            animation: pulse 3s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .quiz-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .quiz-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .quiz-progress {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 8px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        .quiz-progress-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 10px;
+            transition: width 0.8s ease;
+        }
+        .quiz-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        /* Quiz Container */
+        .quiz-container {
+            display: none;
+            animation: fadeIn 0.6s ease;
+        }
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .quiz-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        .quiz-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        .progress-bar-container {
+            margin: 2rem 0;
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+        }
+        .progress-text {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 4px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Content Card */
+        .content-card {
+            background: var(--surface);
+            border-radius: var(--border-radius-large);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeInUp 0.6s ease;
+        }
+        .step-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .step-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        /* Quote Display */
+        .quote-display {
+            background: var(--surface-secondary);
+            border-left: 4px solid var(--purple);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+        .quote-text {
+            font-size: 1.3rem;
+            font-style: italic;
+            line-height: 1.7;
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+        .quote-attribution {
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-align: right;
+        }
+        .quote-icon {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: var(--surface-secondary);
+            color: var(--purple);
+            font-size: 2rem;
+            padding: 0 0.5rem;
+        }
+        /* Character Analysis */
+        .character-card {
+            background: var(--surface-secondary);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-left: 3px solid var(--accent);
+        }
+        .character-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        .character-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        /* Interactive Elements */
+        .choice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .choice-card {
+            background: var(--surface-secondary);
+            border: 2px solid transparent;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .choice-card:hover {
+            border-color: var(--accent);
+            background: rgba(0, 122, 255, 0.05);
+            transform: translateY(-2px);
+        }
+        .choice-card.selected {
+            border-color: var(--accent);
+            background: rgba(0, 122, 255, 0.1);
+        }
+        .choice-card.correct {
+            border-color: var(--success);
+            background: rgba(48, 209, 88, 0.1);
+        }
+        .choice-card.incorrect {
+            border-color: var(--error);
+            background: rgba(255, 69, 58, 0.1);
+        }
+        .choice-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+        .choice-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        /* Enhanced Drag and Drop System */
+        .drag-drop-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .drag-source {
+            background: var(--surface-secondary);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+        }
+        .drag-target {
+            background: var(--surface-secondary);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+        }
+        .drag-source h4, .drag-target h4 {
+            color: var(--text);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .draggable-item {
+            background: var(--accent);
+            color: var(--primary);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: var(--border-radius);
+            cursor: grab;
+            transition: all 0.3s ease;
+            user-select: none;
+            font-weight: 500;
+            text-align: center;
+            position: relative;
+        }
+        .draggable-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+        .draggable-item:active {
+            cursor: grabbing;
+            transform: rotate(2deg) scale(0.95);
+        }
+        .draggable-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+        .draggable-item.locked {
+            background: var(--success);
+            cursor: default;
+            pointer-events: none;
+        }
+        .draggable-item.locked::after {
+            content: '✓';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+        }
+        .draggable-item.incorrect {
+            background: var(--error);
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .drop-zone {
+            border: 2px dashed var(--text-secondary);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            position: relative;
+            text-align: center;
+        }
+        .drop-zone::before {
+            content: attr(data-order);
+            position: absolute;
+            left: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--accent);
+            color: var(--primary);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .drop-zone.drag-over {
+            border-color: var(--accent);
+            background: rgba(0, 122, 255, 0.1);
+            transform: scale(1.02);
+        }
+        .drop-zone.filled {
+            border-color: var(--success);
+            background: rgba(48, 209, 88, 0.1);
+            border-style: solid;
+        }
+        .drop-zone.filled.correct::before {
+            background: var(--success);
+        }
+        .drop-zone.filled.incorrect {
+            border-color: var(--error);
+            background: rgba(255, 69, 58, 0.1);
+        }
+        .drop-zone.filled.incorrect::before {
+            background: var(--error);
+        }
+        .drop-zone.filled .draggable-item {
+            margin: 0;
+        }
+        /* Text Analysis */
+        .text-analysis {
+            background: var(--surface-secondary);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        .analysis-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            color: var(--text);
+        }
+        .highlight-word {
+            background: rgba(0, 122, 255, 0.3);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .highlight-word:hover {
+            background: rgba(0, 122, 255, 0.5);
+            transform: scale(1.05);
+        }
+        .highlight-word.selected {
+            background: var(--accent);
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+        /* Slider Input */
+        .emotion-slider {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: var(--surface-secondary);
+            border-radius: var(--border-radius);
+        }
+        .slider-label {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+            text-align: center;
+        }
+        .slider-input {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--text-secondary);
+            outline: none;
+            -webkit-appearance: none;
+            margin: 1.5rem 0;
+        }
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        .slider-input::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .slider-value {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin: 1rem 0;
+        }
+        /* Text Input */
+        .reflection-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 1.5rem;
+            border: 2px solid var(--text-secondary);
+            border-radius: var(--border-radius);
+            background: var(--surface-secondary);
+            color: var(--text);
+            font-size: 1.1rem;
+            font-family: inherit;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+        .reflection-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+        .reflection-input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+        /* Feedback */
+        .feedback {
+            background: var(--surface-secondary);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-top: 2rem;
+            border-left: 4px solid var(--success);
+            animation: slideInUp 0.5s ease;
+        }
+        .feedback.incorrect {
+            border-left-color: var(--error);
+        }
+        .feedback-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .feedback-content {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+        .insight-box {
+            background: rgba(191, 90, 242, 0.1);
+            border: 1px solid rgba(191, 90, 242, 0.3);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        .insight-title {
+            font-weight: 600;
+            color: var(--purple);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .insight-content {
+            color: var(--text);
+            line-height: 1.6;
+        }
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+        .nav-btn {
+            background: var(--accent);
+            color: var(--primary);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+        .nav-btn:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.6;
+        }
+        .nav-btn.secondary {
+            background: var(--surface-secondary);
+            color: var(--text);
+        }
+        .nav-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        /* Completion */
+        .completion-container {
+            background: var(--surface);
+            border-radius: var(--border-radius-large);
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeInUp 0.8s ease;
+        }
+        .completion-icon {
+            width: 120px;
+            height: 120px;
+            background: var(--gradient-gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            margin: 0 auto 2rem;
+            animation: bounceIn 1s ease;
+        }
+        .completion-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--gradient-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .completion-message {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .back-nav, .progress-counter {
+                position: relative;
+                top: auto;
+                left: auto;
+                right: auto;
+                margin: 1rem;
+            }
+            .main-container {
+                padding: 2rem 1rem;
+            }
+            .content-card {
+                padding: 2rem;
+            }
+            .choice-grid {
+                grid-template-columns: 1fr;
+            }
+            .drag-drop-area {
+                grid-template-columns: 1fr;
+            }
+            .quiz-cards {
+                grid-template-columns: 1fr;
+            }
+            .navigation {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+        .text-center {
+            text-align: center;
+        }
+        /* Restart Modal Styles */
+        .restart-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+        .restart-modal {
+            background: var(--surface);
+            border-radius: var(--border-radius-large);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideInUp 0.3s ease;
+        }
+        .restart-modal-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .restart-modal-header h3 {
+            color: var(--text);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+        .restart-modal-content {
+            padding: 2rem;
+        }
+        .current-progress {
+            margin-bottom: 2rem;
+        }
+        .current-progress h4 {
+            color: var(--text);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+        .stat {
+            text-align: center;
+            padding: 1rem;
+            background: var(--surface-secondary);
+            border-radius: var(--border-radius);
+        }
+        .stat-number {
+            display: block;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .restart-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .restart-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--surface-secondary);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .restart-option:hover {
+            border-color: var(--accent);
+            background: rgba(0, 122, 255, 0.05);
+            transform: translateY(-2px);
+        }
+        .option-icon {
+            font-size: 2rem;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .option-content h4 {
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        .option-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        /* Review Interface Styles */
+        .review-interface {
+            animation: fadeInUp 0.6s ease;
+        }
+        .review-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .review-header h3 {
+            color: var(--text);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .review-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        .review-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .review-card {
+            background: var(--surface-secondary);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-align: center;
+        }
+        .review-card:hover {
+            border-color: var(--accent);
+            background: rgba(0, 122, 255, 0.05);
+            transform: translateY(-4px);
+        }
+        .review-card-number {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0 auto 1rem;
+            font-size: 1.1rem;
+        }
+        .review-card-title {
+            color: var(--text);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        .review-card-type {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: capitalize;
+        }
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 3000;
+            background: var(--surface);
+            border-radius: var(--border-radius);
+            padding: 1rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            animation: slideInRight 0.3s ease;
+            max-width: 300px;
+        }
+        .notification-success {
+            border-left: 4px solid var(--success);
+        }
+        .notification-warning {
+            border-left: 4px solid var(--warning);
+        }
+        .notification-info {
+            border-left: 4px solid var(--accent);
+        }
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .notification-icon {
+            font-size: 1.2rem;
+        }
+        .notification-message {
+            color: var(--text);
+            font-weight: 500;
+        }
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        /* Mobile Responsiveness for Modal */
+        @media (max-width: 768px) {
+            .restart-modal {
+                width: 95%;
+                margin: 1rem;
+            }
+            .restart-modal-content {
+                padding: 1.5rem;
+            }
+            .progress-stats {
+                grid-template-columns: 1fr;
+            }
+            .restart-option {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            .review-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .quiz-image {
+            flex: 0 0 86px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .quiz-image-img {
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            filter: sepia(18%) saturate(0.75) contrast(1.16) brightness(1.04) hue-rotate(8deg) grayscale(35%);
+            box-shadow:
+                0 0 0 2px rgba(255,253,250,0.9),
+                0 0 0 4px rgba(188,175,158,0.1),
+                0 2px 8px rgba(78,56,42,0.12),
+                0 4px 16px rgba(78,56,42,0.08),
+                0 8px 32px rgba(78,56,42,0.04),
+                inset 0 1px 2px rgba(255,248,235,0.3),
+                inset 0 -1px 2px rgba(139,131,120,0.1);
+            border: 2px solid rgba(188,175,158,0.18);
+            transition: all 0.38s ease;
+        }
+        .quiz-image-img:hover {
+            filter: sepia(25%) saturate(0.85) contrast(1.2) brightness(1.08) hue-rotate(12deg) grayscale(25%);
+            box-shadow:
+                0 0 0 2px rgba(255,253,250,1),
+                0 0 0 4px rgba(188,175,158,0.15),
+                0 4px 12px rgba(78,56,42,0.16),
+                0 8px 24px rgba(78,56,42,0.12),
+                0 16px 48px rgba(78,56,42,0.06),
+                inset 0 1px 2px rgba(255,248,235,0.4),
+                inset 0 -1px 2px rgba(139,131,120,0.15);
+            transform: translateY(-1px);
+        }
+        /* Filter Feature Styles */
+        .quiz-filter {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+        .quiz-filter label {
+            font-size: 1.1rem;
+            color: var(--text);
+        }
+        .quiz-filter input[type="text"] {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--surface-secondary);
+            border-radius: var(--border-radius);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        .quiz-filter input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
+        }
+        /* Responsive adjustments for quiz filter */
+        @media (max-width: 768px) {
+            .quiz-filter {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .quiz-filter label {
+                text-align: left;
+            }
+            .quiz-filter input[type="text"] {
+                width: 100%;
+            }
+        }
+
+        /* NEW STYLES FOR LOCKED QUIZZES AND PREMIUM MODAL */
+        .quiz-card.locked {
+            position: relative;
+            cursor: default;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.05); /* Softer border */
+        }
+
+        .quiz-card.locked:hover {
+            transform: none; /* No movement on hover */
+            box-shadow: var(--shadow-medium); /* Still some shadow */
+            border-color: rgba(255, 255, 255, 0.08); /* Slightly more visible border */
+        }
+
+        .quiz-card.locked .quiz-content {
+            opacity: 0.4; /* Dim the content to make it look inaccessible */
+            filter: blur(1px); /* Soft blur */
+            transition: opacity 0.3s ease, filter 0.3s ease;
+        }
+
+        .quiz-card.locked:hover .quiz-content {
+            opacity: 0.5; /* Slightly less dim on hover */
+            filter: blur(0.5px);
+        }
+
+        .locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(28, 28, 30, 0.6)); /* Darker, subtle gradient */
+            backdrop-filter: blur(8px); /* More blur */
+            border-radius: var(--border-radius-large);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 3rem;
+            z-index: 2; /* Still above content, but not blocking border/shadow */
+            pointer-events: none; /* Crucial for clicks to pass through */
+            transition: all 0.4s ease; /* Smooth transition for overlay */
+            border: 2px dashed rgba(255, 255, 255, 0.2); /* Dashed border for locked feel */
+        }
+
+        .quiz-card.locked:hover .locked-overlay {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(28, 28, 30, 0.7)); /* Darker on hover */
+            backdrop-filter: blur(10px);
+        }
+
+        .locked-overlay .lock-icon {
+            font-size: 3.5rem; /* Larger icon */
+            margin-bottom: 0.75rem;
+            color: var(--gold); /* Gold color for premium feel */
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.4); /* Glow effect */
+            animation: pulsateLock 2s infinite ease-in-out; /* Pulsating effect */
+        }
+
+        .locked-overlay .lock-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+            color: var(--primary);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        @keyframes pulsateLock {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.08); opacity: 0.8; }
+        }
+
+        /* Ensure images within locked cards are also affected */
+        .quiz-card.locked .quiz-image-img {
+            filter: grayscale(100%) brightness(0.7) contrast(1.2); /* Stronger visual lock on images */
+            transition: all 0.38s ease; /* Keep transition for smooth initial load */
+        }
+        .quiz-card.locked .quiz-image-img:hover {
+            filter: grayscale(100%) brightness(0.7) contrast(1.2); /* No hover effect on image for locked */
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Premium Modal Styling */
+        .premium-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85); /* Very dark, slightly transparent background */
+            backdrop-filter: blur(15px); /* Stronger blur */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .premium-modal {
+            background: var(--surface); /* Dark surface background */
+            border-radius: var(--border-radius-large);
+            max-width: 650px; /* Slightly wider */
+            width: 90%;
+            max-height: 90vh; /* Allow scrolling if content is long */
+            overflow-y: auto;
+            border: 2px solid rgba(0, 122, 255, 0.2); /* Accent border */
+            box-shadow: var(--shadow-heavy); /* Prominent shadow */
+            animation: slideInUp 0.4s ease-out;
+            padding: 2.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative; /* For absolute positioning of close button */
+        }
+
+        .premium-modal .modal-close {
+            position: absolute; /* Position close button top-right */
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 2rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .premium-modal .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+
+        .premium-modal-content {
+            padding: 1.5rem 0; /* Adjust padding */
+        }
+
+        .premium-modal h3 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem); /* Responsive font size */
+            font-weight: 700;
+            background: var(--gradient-gold); /* Gold gradient for title */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        .premium-modal p {
+            font-size: clamp(1rem, 2.5vw, 1.2rem); /* Responsive font size */
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 2.5rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .premium-modal .premium-icon {
+            font-size: 5rem; /* Large icon */
+            background: var(--gradient-primary); /* Primary gradient for icon */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            animation: bounceIn 0.8s ease-out; /* Entry animation */
+        }
+
+        .premium-modal .purchase-btn {
+            background: var(--gradient-gold); /* Gold gradient button */
+            color: var(--background); /* Dark text on gold */
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); /* Gold shadow */
+            display: inline-flex; /* For icon if needed */
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none; /* For link styling */
+        }
+
+        .premium-modal .purchase-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+            opacity: 0.9; /* Slight opacity change on hover */
+        }
+
+        /* Mobile Responsiveness for Premium Modal */
+        @media (max-width: 768px) {
+            .premium-modal {
+                padding: 1.5rem;
+            }
+            .premium-modal h3 {
+                font-size: 2rem;
+            }
+            .premium-modal p {
+                font-size: 1rem;
+            }
+            .premium-modal .premium-icon {
+                font-size: 4rem;
+            }
+            .premium-modal .purchase-btn {
+                padding: 0.8rem 2rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <!-- Back Navigation -->
+    <a href="index.html" class="back-nav">
+        ← Back to Home
+    </a>
+    <!-- Progress Counter -->
+    <div class="progress-counter">
+        📖 Step <span id="current-step">1</span> of <span id="total-steps">25</span>
+    </div>
+    <div class="main-container">
+        <!-- Quiz Selection -->
+        <div class="quiz-selection" id="quiz-selection">
+            <!-- Filter Feature -->
+            <div class="quiz-filter">
+                <label for="quiz-search">Search Quizzes:</label>
+                <input type="text" id="quiz-search" placeholder="Enter quiz title...">
+            </div>
+            <h1>Literary Masterworks</h1>
+            <p>Choose your journey through the greatest works of literature and philosophy. Each path offers deep insights into human nature and timeless wisdom.</p>
+            <div class="quiz-cards">
+                <!-- THE PRINCE - This card will be functional -->
+                <div class="quiz-card" onclick="selectQuizWithOptions('the-prince')">
+                    <div class="quiz-image">
+                        <img src="machiavelli.jpg" alt="Niccolò Machiavelli" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>The Prince: The Art of Power</h3>
+                        <p>Navigate Machiavelli's controversial guide to political leadership. Explore the tension between moral idealism and practical governance in the pursuit of effective rule.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="the-prince-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="the-prince-completion">0% Complete</span>
+                            <span>26 Steps • 52 min</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ALL OTHER QUIZ CARDS - These will be locked/premium -->
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('hamlet')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="shakespeare.jpg" alt="Hamlet" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>Hamlet: A Psychological Journey</h3>
+                        <p>Explore Shakespeare's masterpiece through the lens of psychology. Understand Hamlet's inner turmoil, the nature of consciousness, and the burden of knowledge.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="hamlet-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="hamlet-completion">0% Complete</span>
+                            <span>30 Steps • 60 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('zarathustra')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="nietzsche.jpg" alt="Friedrich Nietzsche" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>Thus Spoke Zarathustra</h3>
+                        <p>Journey with Nietzsche's prophet through the mountains of self-creation. Discover the Übermensch, eternal recurrence, and the courage to create your own values.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="zarathustra-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="zarathustra-completion">0% Complete</span>
+                            <span>28 Steps • 55 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('karamazov')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="dostoevsky.jpg" alt="Fyodor Dostoevsky" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>The Brothers Karamazov: Faith & Doubt</h3>
+                        <p>Explore Dostoevsky's masterpiece of spiritual and psychological depth. Journey through questions of faith, free will, and the nature of good and evil with the Karamazov family.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="karamazov-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="karamazov-completion">0% Complete</span>
+                            <span>32 Steps • 60 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('faust')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="goethe.jpg" alt="Johann Wolfgang von Goethe" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>Faust: The Eternal Striving</h3>
+                        <p>Follow Goethe's Faust on his journey from scholarly despair to cosmic understanding. Explore the Faustian bargain, the nature of knowledge, and the redemption found in eternal striving.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="faust-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="faust-completion">0% Complete</span>
+                            <span>28 Steps • 58 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('crime-punishment')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="dostoevsky.jpg" alt="Fyodor Dostoevsky" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>Crime and Punishment: The Guilty Mind</h3>
+                        <p>Dive into Raskolnikov's psychological torment and moral awakening. Explore guilt, redemption, and the nature of justice through Dostoevsky's masterpiece of psychological realism.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="crime-punishment-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="crime-punishment-completion">0% Complete</span>
+                            <span>31 Steps • 62 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('king-lear')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="shakespeare.jpg" alt="William Shakespeare" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>King Lear: Nature and Nurture</h3>
+                        <p>Witness the tragic unraveling of families and kingdoms. Explore themes of aging, power, blindness, and the bonds between parents and children in Shakespeare's darkest tragedy.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="king-lear-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="king-lear-completion">0% Complete</span>
+                            <span>30 Steps • 60 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('meditations')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="aurelius.jpg" alt="Marcus Aurelius" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>Meditations: The Philosopher Emperor</h3>
+                        <p>Journey with Marcus Aurelius through his private reflections on duty, virtue, and the nature of existence. Discover timeless Stoic wisdom for living with purpose and tranquility.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="meditations-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="meditations-completion">0% Complete</span>
+                            <span>28 Steps • 56 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('the-stranger')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="camus.jpg" alt="Albert Camus" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>The Stranger: Absurd Existence</h3>
+                        <p>Follow Meursault's journey from indifference to self-awareness. Explore Camus' philosophy of the absurd and the question of how to live authentically in a meaningless universe.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="the-stranger-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="the-stranger-completion">0% Complete</span>
+                            <span>27 Steps • 54 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('apology-socrates')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="Socrates.jpg" alt="Socrates" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>The Apology: Socrates on Trial</h3>
+                        <p>Witness Socrates defend his life of philosophical inquiry. Discover the power of questioning, the examined life, and the courage to stand by one's principles unto death.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="apology-socrates-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="apology-socrates-completion">0% Complete</span>
+                            <span>25 Steps • 50 min</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Add these two cards after the existing quiz cards -->
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('beyond-good-evil')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="nietzsche.jpg" alt="Friedrich Nietzsche" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>Beyond Good and Evil: The Free Spirit</h3>
+                        <p>Explore Nietzsche's critique of traditional morality and his vision of the philosopher as free spirit. Journey beyond conventional moral categories to discover new ways of thinking and being.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="beyond-good-evil-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="beyond-good-evil-completion">0% Complete</span>
+                            <span>29 Steps • 58 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('the-republic')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="plato.jpg" alt="Plato" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>The Republic: Justice and the Ideal State</h3>
+                        <p>Journey with Socrates through Plato's masterwork exploring justice, truth, and the ideal society. Discover the allegory of the cave and the philosopher-king's vision of enlightened governance.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="the-republic-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="the-republic-completion">0% Complete</span>
+                            <span>31 Steps • 62 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('discourses-livy')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="machiavelli.jpg" alt="Niccolò Machiavelli" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>Discourses on Livy: Republican Wisdom</h3>
+                        <p>Explore Machiavelli's analysis of republican government through the lens of Roman history. Discover timeless insights about liberty, power, and civic virtue in democratic societies.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="discourses-livy-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="discourses-livy-completion">0% Complete</span>
+                            <span>24 Steps • 48 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('odyssey')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="homer.jpg" alt="Homer" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>The Odyssey: Journey Home</h3>
+                        <p>Follow Odysseus on his epic journey home from Troy. Explore themes of heroism, loyalty, divine intervention, and the meaning of home through one of literature's greatest adventure stories.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="odyssey-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="odyssey-completion">0% Complete</span>
+                            <span>29 Steps • 58 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('julius-caesar')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="shakespeare.jpg" alt="William Shakespeare" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>Julius Caesar: Power and Betrayal</h3>
+                        <p>Witness the assassination that changed Rome forever. Explore the psychology of political power, the nature of honor and friendship, and the tragic consequences of idealism in Shakespeare's political masterpiece.</p>
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-fill" id="julius-caesar-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                            <span id="julius-caesar-completion">0% Complete</span>
+                            <span>28 Steps • 56 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('on-war')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="clausewitz.jpg" alt="Carl von Clausewitz" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>On War: Strategy and Conflict</h3>
+                        <p>Delve into Clausewitz's seminal work on military strategy. Explore the relationship between politics and war, the nature of strategy, and the dynamics of conflict.</p>
+                        <div class="quiz-progress">
+                        <div class="quiz-progress-fill" id="on-war-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                        <span id="on-war-completion">0% Complete</span>
+                        <span>27 Steps • 54 min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz-card locked" onclick="selectQuizWithOptions('gulag-archipelago')">
+                    <div class="locked-overlay">
+                        <span class="lock-icon">🔒</span>
+                        <span class="lock-text">Premium Content</span>
+                    </div>
+                    <div class="quiz-image">
+                        <img src="solzhenitsyn.jpg" alt="Aleksandr Solzhenitsyn" class="quiz-image-img">
+                    </div>
+                    <div class="quiz-content">
+                        <h3>The Gulag Archipelago: A History of Suffering</h3>
+                        <p>Uncover the brutal history of the Soviet prison system. Explore themes of oppression, resistance, and the resilience of the human spirit in the face of totalitarianism.</p>
+                        <div class="quiz-progress">
+                        <div class="quiz-progress-fill" id="gulag-archipelago-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="quiz-stats">
+                        <span id="gulag-archipelago-completion">0% Complete</span>
+                        <span>29 Steps • 58 min</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Quiz Container -->
+        <div class="quiz-container" id="quiz-container">
+            <div class="quiz-header">
+                <h2 class="quiz-title" id="quiz-title">Quiz Title</h2>
+                <p class="quiz-subtitle" id="quiz-subtitle">Interactive exploration</p>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-text" id="progress-text">Step 1 of 25</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+            <div id="quiz-content">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+            <div class="navigation">
+                <button class="nav-btn secondary" id="back-to-selection" onclick="backToSelection()">
+                    ← Choose Different Quiz
+                </button>
+                <button class="nav-btn" id="continue-btn" onclick="continueJourney()" disabled>
+                    Continue →
+                </button>
+            </div>
+        </div>
+        <!-- Completion Container -->
+        <div class="completion-container hidden" id="completion-container">
+            <div class="completion-icon" id="completion-icon">🎭</div>
+            <div class="completion-title" id="completion-title">Journey Complete!</div>
+            <div class="completion-message" id="completion-message">You have gained profound insights.</div>
+            <div class="navigation">
+                <button class="nav-btn secondary" onclick="backToSelection()">Choose Another Journey</button>
+                <button class="nav-btn" onclick="restartCurrentQuiz()">Explore Again</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Global Variables
+        let currentQuizType = null;
+        let currentStep = 0;
+        let userAnswers = [];
+        let currentAnswer = null;
+        let totalSteps = 25;
+        const STORAGE_KEYS = {
+            hamlet: 'hamlet_progress',
+            zarathustra: 'zarathustra_progress',
+            karamazov: 'karamazov_progress',
+            faust: 'faust_progress',
+            'crime-punishment': 'crime_punishment_progress',
+            'king-lear': 'king_lear_progress',
+            'meditations': 'meditations_progress',
+            'the-stranger': 'the_stranger_progress',
+            'the-prince': 'the_prince_progress',
+            'apology-socrates': 'apology_socrates_progress',
+            'beyond-good-evil': 'beyond_good_evil_progress',
+            'the-republic': 'the_republic_progress',
+            'discourses-livy': 'discourses_livy_progress',
+            'odyssey': 'odyssey_progress',
+            'julius-caesar': 'julius_caesar_progress',
+            'on-war': 'on_war_progress',
+            'gulag-archipelago': 'gulag_archipelago_progress'
+        };
+        // Comprehensive Quiz Data
+        const quizData = {
+            'the-prince': {
+                title: "The Prince: The Art of Power",
+                subtitle: "Navigate the controversial intersection of morality and effective governance",
+                icon: "🦊",
+                totalSteps: 26,
+                steps: [
+                    // Step 1: Introduction to Machiavelli
+                    {
+                        type: "introduction",
+                        title: "The Realist Revolutionary",
+                        content: {
+                            text: "Niccolò Machiavelli wrote 'The Prince' in 1513, during a period of political upheaval in Renaissance Italy. Having served the Florentine Republic as a diplomat and political theorist, Machiavelli witnessed firsthand the chaos that resulted from weak, idealistic leadership. His treatise represents a radical departure from medieval political theory, which emphasized moral virtue in rulers. Instead, Machiavelli focuses on what actually works in the brutal reality of political power.",
+                            context: "'The Prince' shocked contemporary readers by separating political effectiveness from traditional Christian morality. Machiavelli argues that a ruler must be prepared to act immorally when necessary for the state's survival and prosperity. This 'political realism' has influenced political thought for over 500 years, making Machiavelli both revered as a clear-eyed analyst of power and reviled as an advocate for tyranny."
+                        }
+                    },
+                    // Step 2: The Nature of Principalities
+                    {
+                        type: "choice-analysis",
+                        title: "Types of Political Power",
+                        context: "Machiavelli begins by categorizing different types of states and how they are acquired and maintained.",
+                        question: "According to Machiavelli, what is the most challenging type of principality to govern?",
+                        choices: [
+                            {
+                                title: "Hereditary Principalities",
+                                description: "States passed down through family lines",
+                                correct: false
+                            },
+                            {
+                                title: "New Principalities",
+                                description: "Newly acquired territories with different customs and laws",
+                                correct: true
+                            },
+                            {
+                                title: "Mixed Principalities",
+                                description: "Combinations of old and new territories",
+                                correct: false
+                            },
+                            {
+                                title: "Ecclesiastical Principalities",
+                                description: "States governed by religious authority",
+                                correct: false
+                            }
+                        ],
+                        explanation: "New principalities are most challenging because the people are accustomed to different laws, customs, and rulers. The prince must either destroy the old order completely or find ways to integrate it, both of which require careful strategy and often harsh measures. Hereditary states are easier to maintain because people are used to the ruling family."
+                    },
+                    // Step 3: The Lion and the Fox
+                    {
+                        type: "quote-analysis",
+                        title: "The Dual Nature of Leadership",
+                        quote: "A prince ought to be both feared and loved, but as it is difficult for the two to go together, it is much safer to be feared than loved, if one of the two has to be wanting. For it may be said of men in general that they are ungrateful, voluble, dissemblers, anxious to avoid danger, and covetous of gain.",
+                        speaker: "Niccolò Machiavelli",
+                        question: "What does this famous passage reveal about Machiavelli's view of human nature?",
+                        choices: [
+                            {
+                                title: "Optimistic Humanism",
+                                description: "People are basically good and trustworthy",
+                                correct: false
+                            },
+                            {
+                                title: "Moral Neutrality",
+                                description: "People are neither good nor bad by nature",
+                                correct: false
+                            },
+                            {
+                                title: "Pessimistic Realism",
+                                description: "People are fundamentally selfish and unreliable",
+                                correct: true
+                            },
+                            {
+                                title: "Religious Determinism",
+                                description: "Human nature is shaped by divine will",
+                                correct: false
+                            }
+                        ],
+                        explanation: "Machiavelli presents a pessimistic view of human nature, seeing people as primarily motivated by self-interest and prone to betrayal when it serves them. This realistic assessment of human behavior informs his advice that rulers should rely on fear rather than love, since fear is more dependable and controllable than affection."
+                    },
+                    // Step 4: Virtù vs. Traditional Virtue
+                    {
+                        type: "text-interaction",
+                        title: "Redefining Excellence",
+                        text: "I conclude, therefore, with regard to being feared and loved, that men love at their own free will, but fear at the will of the prince, and that a wise prince must rely upon what is in his own control, and not upon what is in the control of others.",
+                        instruction: "Click on phrases that reveal Machiavelli's concept of virtù:",
+                        highlightable: ["men love at their own free will", "fear at the will of the prince", "wise prince must rely", "in his own control"],
+                        insights: {
+                            "men love at their own free will": "Love is unpredictable and cannot be commanded or controlled",
+                            "fear at the will of the prince": "Fear can be strategically created and maintained by the ruler",
+                            "wise prince must rely": "Effective leadership requires practical wisdom, not moral idealism",
+                            "in his own control": "Virtù means focusing on what you can actually influence and control"
+                        }
+                    },
+                    // Step 5: The Ends Justify the Means
+                    {
+                        type: "philosophical-reflection",
+                        title: "Moral Flexibility in Leadership",
+                        context: "Machiavelli argues that rulers must sometimes act against conventional morality to achieve good outcomes for the state.",
+                        quote: "In the actions of men, and especially of princes, from which there is no appeal, the end justifies the means. Let a prince therefore aim at conquering and maintaining the state, and the means will always be judged honorable and praised by everyone.",
+                        reflection_prompt: "When, if ever, is it acceptable to use immoral means to achieve good ends? How do we balance individual moral principles with collective welfare? What are the dangers of this approach to ethics?",
+                        guidance: "Consider both the practical necessity Machiavelli describes and the potential for abuse when moral constraints are removed from political action."
+                    },
+                    // Step 6: Fortune and Virtue
+                    {
+                        type: "slider-assessment",
+                        title: "Fate vs. Human Agency",
+                        question: "How much of political success depends on luck versus skill and preparation?",
+                        slider: {
+                            min: 1,
+                            max: 10,
+                            labels: ["Pure Fortune", "Balanced Influence", "Pure Virtù"],
+                            explanation: "Machiavelli famously argues that fortune controls about half of our actions, but virtù (skill, preparation, adaptability) controls the other half. Like a river that can be channeled by dikes built in peaceful times, fortune can be managed by those who prepare wisely and act decisively when opportunities arise."
+                        }
+                    },
+                    // Step 7: The Necessity of Cruelty
+                    {
+                        type: "choice-analysis",
+                        title: "Well-Used vs. Ill-Used Cruelty",
+                        context: "Machiavelli distinguishes between cruelty that serves the state and cruelty that serves only the ruler's pleasure.",
+                        question: "What makes cruelty 'well-used' according to Machiavelli?",
+                        choices: [
+                            {
+                                title: "Strategic Necessity",
+                                description: "When it's done once, decisively, for the security of the state",
+                                correct: true
+                            },
+                            {
+                                title: "Personal Satisfaction",
+                                description: "When it pleases the ruler to be cruel",
+                                correct: false
+                            },
+                            {
+                                title: "Popular Demand",
+                                description: "When the people want revenge against enemies",
+                                correct: false
+                            },
+                            {
+                                title: "Religious Justification",
+                                description: "When it serves divine purposes",
+                                correct: false
+                            }
+                        ],
+                        explanation: "Well-used cruelty is swift, decisive, and serves the long-term stability of the state rather than the ruler's personal desires. It should be done once and completely, then followed by benefits to the people. Ill-used cruelty is ongoing, arbitrary, or serves only the ruler's pleasure, which ultimately weakens the state."
+                    },
+                    // Step 8: The Art of War
+                    {
+                        type: "timeline-order",
+                        title: "Military Preparedness",
+                        instruction: "Arrange Machiavelli's principles of military leadership:",
+                        events: [
+                            "Understand the terrain and geography of your territory",
+                            "Study the art of war constantly, even in peacetime",
+                            "Maintain citizen soldiers rather than relying on mercenaries",
+                            "Be personally involved in military planning and execution",
+                            "Learn from historical examples of great military leaders",
+                        ],
+                        correctOrder: [1, 0, 3, 4, 2],
+                        explanation: "Machiavelli emphasizes that military preparedness is the foundation of political power. A prince must be a student of war, understand his territory intimately, learn from history, build reliable forces, and lead personally. Weakness in military affairs inevitably leads to political downfall."
+                    },
+                    // Step 9: Mercenaries vs. Citizen Armies
+                    {
+                        type: "comparison",
+                        title: "The Problem of Hired Soldiers",
+                        context: "Machiavelli strongly criticizes the use of mercenary forces, which were common in Renaissance Italy.",
+                        question: "Why does Machiavelli prefer citizen armies to mercenaries?",
+                        comparison: {
+                            mercenaries: {
+                                title: "Mercenary Forces",
+                                traits: ["Fight only for money", "No loyalty to the state", "May switch sides", "Expensive to maintain"]
+                            },
+                            citizens: {
+                                title: "Citizen Armies",
+                                traits: ["Fight for their homeland", "Loyal to the state", "Personally invested in victory", "More cost-effective"]
+                            }
+                        },
+                        insight: "Citizen soldiers have skin in the game - they're fighting for their own homes, families, and future. Mercenaries fight only for pay and will abandon the cause when it becomes difficult or when offered better terms elsewhere. This makes citizen armies more reliable and effective in the long term."
+                    },
+                    // Step 10: The Importance of Reputation
+                    {
+                        type: "text-interaction",
+                        title: "Managing Public Perception",
+                        text: "Everyone sees what you appear to be, few experience what you really are. And those few dare not oppose themselves to the opinion of the many, who have the majesty of the state to defend them.",
+                        instruction: "What does this reveal about the relationship between appearance and reality in politics?",
+                        highlightable: ["Everyone sees what you appear to be", "few experience what you really are", "dare not oppose themselves", "majesty of the state"],
+                        insights: {
+                            "Everyone sees what you appear to be": "Public perception is based on appearances and actions, not inner character",
+                            "few experience what you really are": "Only those close to power know the ruler's true nature",
+                            "dare not oppose themselves": "Those who know the truth often lack the power or courage to speak it",
+                            "majesty of the state": "The authority of office protects the ruler from criticism"
+                        }
+                    },
+                    // Step 11: Religious Policy
+                    {
+                        type: "choice-analysis",
+                        title: "The Political Use of Religion",
+                        context: "Machiavelli discusses how rulers should handle religious matters and appear pious.",
+                        question: "What is Machiavelli's advice regarding religion and governance?",
+                        choices: [
+                            {
+                                title: "Genuine Piety",
+                                description: "Rulers should be truly religious and follow divine commands",
+                                correct: false
+                            },
+                            {
+                                title: "Strategic Appearance",
+                                description: "Appear religious to gain popular support, regardless of personal belief",
+                                correct: true
+                            },
+                            {
+                                title: "Open Atheism",
+                                description: "Reject religion entirely and promote secular values",
+                                correct: false
+                            },
+                            {
+                                title: "Religious Persecution",
+                                description: "Suppress religious practice to maintain control",
+                                correct: false
+                            }
+                        ],
+                        explanation: "Machiavelli advises rulers to appear religious because it gains popular support and legitimacy, regardless of their personal beliefs. He sees religion as a useful tool for governance rather than a source of moral guidance. The appearance of piety is more important than genuine faith for political purposes."
+                    },
+                    // Step 12: Handling Conspiracies
+                    {
+                        type: "philosophical-reflection",
+                        title: "The Paranoia of Power",
+                        context: "Machiavelli provides detailed advice on how to prevent and handle conspiracies against the ruler.",
+                        quote: "Men judge generally more by the eye than by the hand, for everyone can see and few can feel. Everyone sees what you appear to be, few experience what you really are.",
+                        reflection_prompt: "How does the constant threat of conspiracy affect a ruler's psychology and decision-making? What is the balance between necessary security measures and paranoid tyranny? How does power isolate leaders from honest feedback?",
+                        guidance: "Consider how the need for security can create the very conditions that breed conspiracy and rebellion."
+                    },
+                    // Step 13: The New Prince vs. The Hereditary Prince
+                    {
+                        type: "comparison",
+                        title: "Established vs. Revolutionary Leadership",
+                        context: "Machiavelli distinguishes between rulers who inherit power and those who must create it.",
+                        question: "What are the different challenges faced by new princes versus hereditary rulers?",
+                        comparison: {
+                            hereditary: {
+                                title: "Hereditary Prince",
+                                traits: ["Accepted by tradition", "Established institutions", "Known customs and laws", "Stable expectations"]
+                            },
+                            new: {
+                                title: "New Prince",
+                                traits: ["Must prove legitimacy", "Create new institutions", "Change existing customs", "Manage resistance to change"]
+                            }
+                        },
+                        insight: "New princes face the challenge of innovation and change, which always creates enemies among those who benefited from the old system. They must be more ruthless and strategic because they lack the automatic legitimacy that comes with tradition and established custom."
+                    },
+                    // Step 14: The Role of Advisors
+                    {
+                        type: "choice-analysis",
+                        title: "Choosing Counselors Wisely",
+                        context: "Machiavelli emphasizes the importance of selecting good advisors and managing their influence.",
+                        question: "What is the key to managing advisors effectively according to Machiavelli?",
+                        choices: [
+                            {
+                                title: "Trust Completely",
+                                description: "Give advisors full authority and trust their judgment",
+                                correct: false
+                            },
+                            {
+                                title: "Ignore Advice",
+                                description: "Make all decisions independently without consultation",
+                                correct: false
+                            },
+                            {
+                                title: "Rotate Frequently",
+                                description: "Change advisors often to prevent them gaining too much influence",
+                                correct: false
+                            },
+                            {
+                                title: "Maintain Control",
+                                description: "Keep final decision-making power while encouraging honest advice",
+                                correct: true
+                            }
+                        ],
+                        explanation: "The prince should encourage honest advice by making it clear that truth-telling is rewarded, but must maintain final authority over all decisions. Advisors should be chosen for their competence and honesty, not their willingness to flatter, but the prince must never become dependent on any single advisor."
+                    },
+                    // Step 15: Liberality vs. Parsimony
+                    {
+                        type: "text-interaction",
+                        title: "The Economics of Generosity",
+                        text: "I reply that it would be well to be reputed liberal. Nevertheless, liberality exercised in a way that does not bring you the reputation for it, injures you; for if one exercises it honestly and as it should be exercised, it may not become known, and you will not avoid the reproach of its opposite.",
+                        instruction: "What is Machiavelli's paradox about generosity and reputation?",
+                        highlightable: ["well to be reputed liberal", "liberality exercised in a way", "may not become known", "reproach of its opposite"],
+                        insights: {
+                            "well to be reputed liberal": "The reputation for generosity is politically valuable",
+                            "liberality exercised in a way": "True generosity may not be visible or politically useful",
+                            "may not become known": "Private charity doesn't build public reputation",
+                            "reproach of its opposite": "You may be seen as stingy despite private generosity"
+                        }
+                    },
+                    // Step 16: The Cesare Borgia Example
+                    {
+                        type: "timeline-order",
+                        title: "A Case Study in Ruthless Effectiveness",
+                        instruction: "Arrange the key events in Cesare Borgia's rise to power as analyzed by Machiavelli:",
+                        events: [
+                            "Established effective administration in conquered territories",
+                            "Eliminated rivals and potential threats systematically",
+                            "Used Remirro de Orco as enforcer, then executed him publicly",
+                            "Used his father's papal position to gain initial power",
+                            "Lost everything when his father died and he fell ill simultaneously"
+                        ],
+                        correctOrder: [2, 1, 3, 0, 4],
+                        explanation: "Machiavelli uses Cesare Borgia as an example of effective ruthlessness followed by bad fortune. Borgia did everything right strategically - using family connections, eliminating enemies, governing well, and managing his reputation - but was undone by the coincidence of his father's death and his own illness at the same time."
+                    },
+                    // Step 17: The Problem of Flatterers
+                    {
+                        type: "philosophical-reflection",
+                        title: "Truth vs. Flattery in Power",
+                        context: "Machiavelli warns about the danger of surrounding oneself with flatterers who tell the ruler only what they want to hear.",
+                        quote: "There is no other way of guarding oneself from flatterers except letting men understand that to tell you the truth does not offend you; but when everyone may tell you the truth, respect for you abates.",
+                        reflection_prompt: "How can leaders create an environment where they receive honest feedback without undermining their authority? What are the psychological temptations that make rulers prefer flattery to truth? How does power corrupt the flow of information?",
+                        guidance: "Consider the delicate balance between encouraging honesty and maintaining the respect and authority necessary for effective leadership."
+                    },
+                    // Step 18: Fortresses and Strongholds
+                    {
+                        type: "choice-analysis",
+                        title: "Physical vs. Political Security",
+                        context: "Machiavelli discusses whether rulers should build fortresses to protect themselves from their subjects.",
+                        question: "What is Machiavelli's view on building fortresses for protection?",
+                        choices: [
+                            {
+                                title: "Contextual Decision",
+                                description: "Depends on whether the ruler fears subjects or foreign enemies more",
+                                correct: true
+                            },
+                            {
+                                title: "Always Necessary",
+                                description: "Every ruler needs physical fortifications for security",
+                                correct: false
+                            },
+                            {
+                                title: "Always Harmful",
+                                description: "Fortresses always alienate the people and should be avoided",
+                                correct: false
+                            },
+                            {
+                                title: "Purely Symbolic",
+                                description: "Fortresses are only useful for showing strength",
+                                correct: false
+                            }
+                        ],
+                        explanation: "Machiavelli argues that fortresses are useful if you fear foreign invasion more than domestic rebellion, but harmful if your own people are the primary threat. The best fortress is not to be hated by the people, because physical defenses are useless if the population actively supports your enemies."
+                    },
+                    // Step 19: The Qualities of a Prince
+                    {
+                        type: "text-interaction",
+                        title: "The Ideal vs. The Practical",
+                        text: "Upon this a question arises: whether it be better to be loved than feared or feared than loved? It may be answered that one should wish to be both, but, because it is difficult to unite them in one person, it is much safer to be feared than loved, when, of the two, either must be dispensed with.",
+                        instruction: "What does this reveal about Machiavelli's approach to leadership qualities?",
+                        highlightable: ["better to be loved than feared", "difficult to unite them", "much safer to be feared", "either must be dispensed with"],
+                        insights: {
+                            "better to be loved than feared": "The ideal situation would combine both love and fear",
+                            "difficult to unite them": "In practice, it's hard to maintain both simultaneously",
+                            "much safer to be feared": "Fear is more reliable and controllable than love",
+                            "either must be dispensed with": "Leaders must make practical choices between competing goods"
+                        }
+                    },
+                    // Step 20: Innovation and Change
+                    {
+                        type: "choice-analysis",
+                        title: "The Difficulty of Reform",
+                        context: "Machiavelli explains why introducing new systems and reforms is so challenging for rulers.",
+                        question: "Why is innovation particularly dangerous for rulers according to Machiavelli?",
+                        choices: [
+                            {
+                                title: "Technical Complexity",
+                                description: "New systems are too complicated to implement effectively",
+                                correct: false
+                            },
+                            {
+                                title: "Lack of Resources",
+                                description: "Innovation requires too much money and time",
+                                correct: false
+                            },
+                            {
+                                title: "Resistance to Change",
+                                description: "Those who benefit from the old system will actively oppose change",
+                                correct: true
+                            },
+                            {
+                                title: "Popular Conservatism",
+                                description: "Common people naturally prefer tradition",
+                                correct: false
+                            }
+                        ],
+                        explanation: "Innovation creates determined enemies among those who benefited from the old system, while those who might benefit from the new system are uncertain and lukewarm in their support. This creates an asymmetry where the opposition is passionate and organized while support is tentative and weak."
+                    },
+                    // Step 21: The Lion and the Fox Metaphor
+                    {
+                        type: "comparison",
+                        title: "Two Modes of Leadership",
+                        context: "Machiavelli's famous metaphor describes two essential leadership styles that effective rulers must master.",
+                        question: "What do the lion and fox represent in Machiavelli's political philosophy?",
+                        comparison: {
+                            lion: {
+                                title: "The Lion",
+                                traits: ["Strength and courage", "Direct confrontation", "Inspiring fear", "Overwhelming force"]
+                            },
+                            fox: {
+                                title: "The Fox",
+                                traits: ["Cunning and intelligence", "Deception and strategy", "Avoiding traps", "Subtle manipulation"]
+                            }
+                        },
+                        insight: "Effective rulers must be both lions and foxes - using force when necessary but also employing cunning and strategy. Pure strength without intelligence leads to defeat by clever enemies, while pure cunning without the ability to use force leads to being overwhelmed by stronger opponents."
+                    },
+                    // Step 22: The Critique of Idealism
+                    {
+                        type: "philosophical-reflection",
+                        title: "Realism vs. Moral Philosophy",
+                        context: "Machiavelli explicitly rejects the idealistic political philosophy of his predecessors.",
+                        quote: "Many have dreamed up republics and principalities which have never in truth been known to exist; the gulf between how one should live and how one does live is so wide that a man who neglects what is actually done for what should be done, sooner effects his destruction than his preservation.",
+                        reflection_prompt: "Is Machiavelli right that idealistic political philosophy is dangerous because it ignores human nature and practical realities? Can moral principles be maintained in political leadership, or do the demands of power inevitably corrupt even well-intentioned leaders?",
+                        guidance: "Consider both the practical wisdom in Machiavelli's realism and the potential dangers of abandoning moral constraints in political action."
+                    },
+                    // Step 23: The Temporary Nature of Power
+                    {
+                        type: "text-interaction",
+                        title: "The Wheel of Fortune",
+                        text: "I believe also that he will be successful who directs his actions according to the spirit of the times, and that he whose actions do not accord with the times will not be successful.",
+                        instruction: "What does this reveal about Machiavelli's understanding of political success?",
+                        highlightable: ["successful who directs his actions", "spirit of the times", "actions do not accord", "will not be successful"],
+                        insights: {
+                            "successful who directs his actions": "Success requires active adaptation and strategic thinking",
+                            "spirit of the times": "Understanding and responding to current circumstances and trends",
+                            "actions do not accord": "Failure to adapt to changing conditions",
+                            "will not be successful": "Inflexibility leads to political downfall"
+                        }
+                    },
+                    // Step 24: The Unity of Italy
+                    {
+                        type: "choice-analysis",
+                        title: "Machiavelli's Patriotic Vision",
+                        context: "The Prince concludes with a passionate call for Italian unification and liberation from foreign domination.",
+                        question: "How does Machiavelli's call for Italian unity relate to his political philosophy?",
+                        choices: [
+                            {
+                                title: "Contradiction of Realism",
+                                description: "It shows he was actually an idealist despite his practical advice",
+                                correct: false
+                            },
+                            {
+                                title: "Application of Principles",
+                                description: "It demonstrates how his realistic methods could serve patriotic ends",
+                                correct: true
+                            },
+                            {
+                                title: "Personal Ambition",
+                                description: "He hoped to gain political position through this appeal",
+                                correct: false
+                            },
+                            {
+                                title: "Religious Motivation",
+                                description: "He saw Italian unity as divinely ordained",
+                                correct: false
+                            }
+                        ],
+                        explanation: "The call for Italian unity shows that Machiavelli's realism serves higher purposes - his harsh methods are justified by the noble goal of liberating Italy from foreign domination and creating a strong, unified state. His political philosophy is not amoral but rather subordinates conventional morality to larger political goods."
+                    },
+                    // Step 25: Modern Applications of Machiavellian Principles
+                    {
+                        type: "personal-application",
+                        title: "The Prince in Contemporary Leadership",
+                        question: "How do Machiavelli's insights apply to modern leadership challenges in politics, business, and organizations?",
+                        reflection_areas: [
+                            "Balancing moral principles with practical effectiveness",
+                            "Managing organizational change and resistance",
+                            "Building and maintaining authority and credibility",
+                            "Dealing with competition and conflict",
+                            "Making difficult decisions with incomplete information",
+                            "Understanding the role of perception and reputation in leadership"
+                        ]
+                    },
+                    // Step 26: The Enduring Controversy of The Prince
+                    {
+                        type: "synthesis",
+                        title: "Machiavelli's Complex Legacy",
+                        context: "As we conclude our exploration of The Prince, let's examine its enduring influence and the debates it continues to generate.",
+                        insights: [
+                            {
+                                title: "Political Realism",
+                                content: "Machiavelli's separation of political effectiveness from conventional morality created the foundation for modern political science and realistic analysis of power dynamics."
+                            },
+                            {
+                                title: "The Problem of Dirty Hands",
+                                content: "The tension between moral principles and effective action remains a central challenge for leaders who must sometimes choose between doing good and doing what works."
+                            },
+                            {
+                                title: "Human Nature and Power",
+                                content: "Machiavelli's pessimistic but realistic assessment of human nature as fundamentally self-interested continues to influence how we understand political behavior and institutional design."
+                            },
+                            {
+                                title: "The Paradox of Authority",
+                                content: "Effective leadership requires both the appearance of virtue and the willingness to act against virtue when necessary, creating an inherent tension in political authority."
+                            },
+                            {
+                                title: "Fortune and Virtue",
+                                content: "The balance between circumstances beyond our control and our ability to shape events through skill and preparation remains relevant for understanding success and failure in any field."
+                            },
+                            {
+                                title: "The Critique of Idealism",
+                                content: "Machiavelli's argument that good intentions without practical wisdom often lead to bad outcomes continues to challenge purely idealistic approaches to social and political problems."
+                            }
+                        ]
+                    }
+                ]
+            }
+        };
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            createStars();
+            loadAllProgress();
+            setupQuizSearch(); // Setup the quiz search functionality
+        });
+        function setupQuizSearch() {
+            const searchInput = document.getElementById('quiz-search');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = searchInput.value.toLowerCase();
+                filterQuizzes(searchTerm);
+            });
+        }
+        function filterQuizzes(searchTerm) {
+            const quizCards = document.querySelectorAll('.quiz-card');
+            quizCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                if (title.includes(searchTerm)) {
+                    card.style.display = 'block'; // Show the card
+                } else {
+                    card.style.display = 'none'; // Hide the card
+                }
+            });
+        }
+        // Create animated stars
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+        // Local Storage Functions
+        function saveProgress(quizType, step) {
+            const progress = {
+                currentStep: step,
+                completedSteps: step + 1,
+                totalSteps: quizData[quizType].totalSteps,
+                lastAccessed: Date.now()
+            };
+            localStorage.setItem(STORAGE_KEYS[quizType], JSON.stringify(progress));
+            updateProgressDisplay(quizType);
+        }
+        function loadProgress(quizType) {
+            const saved = localStorage.getItem(STORAGE_KEYS[quizType]);
+            if (saved) {
+                return JSON.parse(saved);
+            }
+            // Return default progress, ensuring totalSteps is retrieved if quizData exists
+            const totalStepsForQuiz = quizData[quizType] ? quizData[quizType].totalSteps : 0;
+            return { currentStep: 0, completedSteps: 0, totalSteps: totalStepsForQuiz };
+        }
+        function loadAllProgress() {
+            Object.keys(STORAGE_KEYS).forEach(quizType => {
+                // IMPORTANT FIX: Only update display for quizzes that have data
+                if (quizData[quizType]) {
+                    updateProgressDisplay(quizType);
+                }
+            });
+        }
+        function updateProgressDisplay(quizType) {
+            // Check if quizData for this type exists to prevent errors
+            if (!quizData[quizType]) {
+                return;
+            }
+
+            const progress = loadProgress(quizType);
+            const percentage = (progress.completedSteps / progress.totalSteps) * 100;
+
+            const progressBar = document.getElementById(`${quizType}-progress`);
+            const completionText = document.getElementById(`${quizType}-completion`);
+
+            if (progressBar) {
+                progressBar.style.width = percentage + '%';
+            }
+            if (completionText) {
+                completionText.textContent = `${Math.round(percentage)}% Complete`;
+            }
+        }
+        // Quiz Selection
+        function selectQuiz(quizType) {
+            currentQuizType = quizType;
+            const quiz = quizData[quizType];
+            const savedProgress = loadProgress(quizType);
+
+            currentStep = savedProgress.currentStep;
+            totalSteps = quiz.totalSteps;
+
+            document.getElementById('quiz-selection').style.display = 'none';
+            document.getElementById('quiz-container').style.display = 'block';
+            document.getElementById('completion-container').classList.add('hidden');
+
+            document.getElementById('quiz-title').textContent = quiz.title;
+            document.getElementById('quiz-subtitle').textContent = quiz.subtitle;
+            document.getElementById('total-steps').textContent = totalSteps;
+
+            displayStep();
+        }
+        function backToSelection() {
+            document.getElementById('quiz-selection').style.display = 'block';
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('completion-container').classList.add('hidden');
+
+            currentQuizType = null;
+            currentStep = 0;
+            userAnswers = [];
+            currentAnswer = null;
+        }
+        // Display current step
+        function displayStep() {
+            const quiz = quizData[currentQuizType];
+            const step = quiz.steps[currentStep];
+            const container = document.getElementById('quiz-content');
+
+            container.innerHTML = '';
+            currentAnswer = null;
+            document.getElementById('continue-btn').disabled = true;
+
+            updateProgress();
+            updateStepCounter();
+
+            switch (step.type) {
+                case 'introduction':
+                    displayIntroduction(step);
+                    break;
+                case 'quote-analysis':
+                    displayQuoteAnalysis(step);
+                    break;
+                case 'text-interaction':
+                    displayTextInteraction(step);
+                    break;
+                case 'slider-assessment':
+                    displaySliderAssessment(step);
+                    break;
+                case 'choice-analysis':
+                    displayChoiceAnalysis(step);
+                    break;
+                case 'timeline-order':
+                    displayTimelineOrder(step);
+                    break;
+                case 'comparison':
+                    displayComparison(step);
+                    break;
+                case 'philosophical-reflection':
+                    displayPhilosophicalReflection(step);
+                    break;
+                case 'personal-application':
+                    displayPersonalApplication(step);
+                    break;
+                case 'synthesis':
+                    displaySynthesis(step);
+                    break;
+                // Add more new types as needed
+                default:
+                    // Fallback to original function for any unhandled types
+                    console.error("Unhandled step type:", step.type); // Log unhandled types
+            }
+        }
+        // Display functions for each step type
+        function displayIntroduction(step) {
+            const container = document.getElementById('quiz-content');
+
+            const card = document.createElement('div');
+            card.className = 'content-card';
+
+            card.innerHTML = `
+                <div class="step-title">
+                    <div class="step-icon">${currentQuizType === 'hamlet' ? '🏰' : '⛰️'}</div>
+                    ${step.title}
+                </div>
+                <div class="character-card">
+                    <div class="character-description">${step.content.text}</div>
+                </div>
+                <div class="insight-box">
+                    <div class="insight-title">💡 Why This Matters</div>
+                    <div class="insight-content">${step.content.context}</div>
+                </div>
+            `;
+
+            container.appendChild(card);
+            document.getElementById('continue-btn').disabled = false;
+        }
+        function displayQuoteAnalysis(step) {
+            const container = document.getElementById('quiz-content');
+
+            const card = document.createElement('div');
+            card.className = 'content-card';
+
+            let html = `
+                <div class="step-title">
+                    <div class="step-icon">${currentQuizType === 'hamlet' ? '👻' : '📜'}</div>
+                    ${step.title}
+                </div>
+                <div class="quote-display">
+                    <div class="quote-icon">"</div>
+                    <div class="quote-text">${step.quote}</div>
+                    <div class="quote-attribution">— ${step.speaker}</div>
+                </div>
+                <div style="margin: 2rem 0; font-size: 1.1rem; color: var(--text);">${step.question}</div>
+                <div class="choice-grid">
+            `;
+
+            step.choices.forEach((choice, index) => {
+                html += `
+                    <div class="choice-card" onclick="selectChoice(${index}, ${choice.correct})">
+                        <div class="choice-title">${choice.title}</div>
+                        <div class="choice-description">${choice.description}</div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            card.innerHTML = html;
+            container.appendChild(card);
+        }
+        function displayTextInteraction(step) {
+            const container = document.getElementById('quiz-content');
+
+            const card = document.createElement('div');
+            card.className = 'content-card';
+
+            let html = `
+                <div class="step-title">
+                    <div class="step-icon">${currentQuizType === 'hamlet' ? '🎭' : '📖'}</div>
+                    ${step.title}
+                </div>
+                <div class="text-analysis">
+                    <div style="margin-bottom: 1rem; color: var(--text-secondary);">${step.instruction}</div>
+                    <div class="analysis-text">
+            `;
+
+            // Split text and make highlightable words clickable
+            let textWithHighlights = step.text;
+            step.highlightable.forEach((phrase, index) => {
+                textWithHighlights = textWithHighlights.replace(
+                    phrase,
+                    `<span class="highlight-word" onclick="highlightPhrase('${phrase}', ${index})">${phrase}</span>`
+                );
+            });
+
+            html += textWithHighlights + '</div></div>';
+            card.innerHTML = html;
+            container.appendChild(card);
+
+            // Store insights for later use
+            window.currentInsights = step.insights;
+            window.highlightedPhrases = [];
+        }
+        function displaySliderAssessment(step) {
+            const container = document.getElementById('quiz-content');
+
+            const card = document.createElement('div');
+            card.className = 'content-card';
+
+            const html = `
+                <div class="step-title">
+                    <div class="step-icon">📊</div>
+                    ${step.title}
+                </div>
+                <div class="emotion-slider">
+                    <div class="slider-label">${step.question}</div>
+                    <input type="range" min="${step.slider.min}" max="${step.slider.max}"
+                            value="5" class="slider-input" id="assessment-slider"
+                            oninput="updateSliderValue(this.value)">
+                    <div class="slider-labels">
+                        <span>${step.slider.labels[0]}</span>
+                        <span>${step.slider.labels[1]}</span>
+                        <span>${step.slider.labels[2]}</span>
+                    </div>
+                    <div class="slider-value" id="slider-display">5</div>
+                </div>
+            `;
+
+            card.innerHTML = html;
+            container.appendChild(card);
+
+            // Store explanation for later
+            window.sliderExplanation = step.slider.explanation;
+            document.getElementById('continue-btn').disabled = false;
+        }
+        function displayChoiceAnalysis(step) {
+            const container = document.getElementById('quiz-content');
+
+            const card = document.createElement('div');
+            card.className = 'content-card';
+
+            let html = `
+                <div class="step-title">
+                    <div class="step-icon">${currentQuizType === 'hamlet' ? '🎪' : '🎯'}</div>
+                    ${step.title}
+                </div>
+                <div class="character-card">
+                    <div class="character-description">${step.context}</div>
+                </div>
+                <div style="margin: 2rem 0; font-size: 1.1rem; color: var(--text);">${step.question}</div>
+                <div class="choice-grid">
+            `;
+
+            step.choices.forEach((choice, index) => {
+                html += `
+                    <div class="choice-card" onclick="selectChoice(${index}, ${choice.correct})">
+                        <div class="choice-title">${choice.title}</div>
+                        <div class="choice-description">${choice.description}</div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            card.innerHTML = html;
+            container.appendChild(card);
+        }
+        // Enhanced Drag and Drop Implementation
+        function displayTimelineOrder(step) {
+            const container = document.getElementById('quiz-content');
+
+            const card = document.createElement('div');
+            card.className = 'content-card';
+
+            let html = `
+                <div class="step-title">
+                    <div class="step-icon">🎯</div>
+                    ${step.title}
+                </div>
+                <div style="margin-bottom: 2rem; color: var(--text-secondary);">${step.instruction}</div>
+                <div class="drag-drop-area">
+                    <div class="drag-source">
+                        <h4>Events to Order:</h4>
+                        <div id="drag-items">
+            `;
+
+            step.events.forEach((event, index) => {
+                html += `<div class="draggable-item" draggable="true" data-index="${index}" data-text="${event}">${event}</div>`;
+            });
+
+            html += `
+                        </div>
+                    </div>
+                    <div class="drag-target">
+                        <h4>Correct Order:</h4>
+                        <div id="drop-zones">
+            `;
+
+            step.events.forEach((_, index) => {
+                html += `<div class="drop-zone" data-order="${index + 1}">Drop event ${index + 1} here</div>`;
+            });
+
+            html += `
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            card.innerHTML = html;
+            container.appendChild(card);
+
+            // Store correct order and initialize enhanced drag and drop
+            window.correctOrder = step.correctOrder;
+            window.currentExplanation = step.explanation;
+            initializeEnhancedDragAndDrop();
+        }
+        function displayComparison(step) {
+            const container = document.getElementById('quiz-content');
+
+            const card = document.createElement('div');
+            card.className = 'content-card';
+
+            let html = `
+                <div class="step-title">
+                    <div class="step-icon">⚖️</div>
+                    ${step.title}
+                </div>
+                <div class="character-card">
+                    <div class="character-description">${step.context}</div>
+                </div>
+                <div style="margin: 2rem 0; font-size: 1.1rem; color: var(--text);">${step.question}</div>
+                <div class="choice-grid">
+                    <div class="choice-card">
+                        <div class="choice-title">${Object.values(step.comparison)[0].title}</div>
+                        <div class="choice-description">
+            `;
+
+            Object.values(step.comparison)[0].traits.forEach(trait => {
+                html += `• ${trait}<br>`;
+            });
+
+            html += `
+                        </div>
+                    </div>
+                    <div class="choice-card">
+                        <div class="choice-title">${Object.values(step.comparison)[1].title}</div>
+                        <div class="choice-description">
+            `;
+
+            Object.values(step.comparison)[1].traits.forEach(trait => {
+                html += `• ${trait}<br>`;
+            });
+
+            html += `
+                        </div>
+                    </div>
+                </div>
+                <div class="insight-box">
+                    <div class="insight-title">💡 Key Insight</div>
+                    <div class="insight-content">${step.insight}</div>
+                </div>
+            `;
+
+            card.innerHTML = html;
+            container.appendChild(card);
+
+            document.getElementById('continue-btn').disabled = false;
+        }
+        function displayPhilosophicalReflection(step) {
+            const container = document.getElementById('quiz-content');
+
+            const card = document.createElement('div');
+            card.className = 'content-card';
+
+            const html = `
+                <div class="step-title">
+                    <div class="step-icon">${currentQuizType === 'hamlet' ? '💀' : '🤔'}</div>
+                    ${step.title}
+                </div>
+                <div class="character-card">
+                    <div class="character-description">${step.context}</div>
+                </div>
+                <div class="quote-display">
+                    <div class="quote-icon">"</div>
+                    <div class="quote-text">${step.quote}</div>
+                </div>
+                <div style="margin: 2rem 0; font-size: 1.1rem; color: var(--text);">${step.reflection_prompt}</div>
+                <textarea class="reflection-input" placeholder="Share your thoughts..."
+                           oninput="handleReflectionInput(this.value)"></textarea>
+                <div class="insight-box">
+                    <div class="insight-title">💡 Consider This</div>
+                    <div class="insight-content">${step.guidance}</div>
+                </div>
+            `;
+
+            card.innerHTML = html;
+            container.appendChild(card);
+        }
+        function displayPersonalApplication(step) {
+            const container = document.getElementById('quiz-content');
+
+            const card = document.createElement('div');
+            card.className = 'content-card';
+
+            let html = `
+                <div class="step-title">
+                    <div class="step-icon">🪞</div>
+                    ${step.title}
+                </div>
+                <div style="margin: 2rem 0; font-size: 1.1rem; color: var(--text);">${step.question}</div>
+                <textarea class="reflection-input" placeholder="Reflect on your own experiences..."
+                           oninput="handleReflectionInput(this.value)"></textarea>
+                <div style="margin: 2rem 0;">
+                    <h4 style="color: var(--text); margin-bottom: 1rem;">Consider these areas:</h4>
+            `;
+
+            step.reflection_areas.forEach(area => {
+                html += `<div class="character-card"><div class="character-description">• ${area}</div></div>`;
+            });
+
+            html += '</div>';
+            card.innerHTML = html;
+            container.appendChild(card);
+        }
+        function displaySynthesis(step) {
+            const container = document.getElementById('quiz-content');
+
+            const card = document.createElement('div');
+            card.className = 'content-card';
+
+            let html = `
+                <div class="step-title">
+                    <div class="step-icon">🧠</div>
+                    ${step.title}
+                </div>
+                <div class="character-card">
+                    <div class="character-description">${step.context}</div>
+                </div>
+            `;
+
+            step.insights.forEach(insight => {
+                html += `
+                    <div class="insight-box">
+                        <div class="insight-title">💡 ${insight.title}</div>
+                        <div class="insight-content">${insight.content}</div>
+                    </div>
+                `;
+            });
+
+            card.innerHTML = html;
+            container.appendChild(card);
+
+            document.getElementById('continue-btn').disabled = false;
+        }
+        // Enhanced Drag and Drop Implementation with Smart Feedback
+        function initializeEnhancedDragAndDrop() {
+            const draggableItems = document.querySelectorAll('.draggable-item');
+            const dropZones = document.querySelectorAll('.drop-zone');
+            let draggedElement = null;
+            let dropOrder = {};
+            let lockedPositions = new Set();
+            // Add drag event listeners to items
+            draggableItems.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+            // Add drop event listeners to zones
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('dragenter', handleDragEnter);
+                zone.addEventListener('dragleave', handleDragLeave);
+                zone.addEventListener('drop', handleDrop);
+            });
+            function handleDragStart(e) {
+                // Don't allow dragging locked items
+                if (e.target.classList.contains('locked')) {
+                    e.preventDefault();
+                    return;
+                }
+                draggedElement = e.target;
+                e.target.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', e.target.outerHTML);
+            }
+            function handleDragEnd(e) {
+                e.target.classList.remove('dragging');
+                draggedElement = null;
+            }
+            function handleDragOver(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            }
+            function handleDragEnter(e) {
+                if (!e.target.classList.contains('filled') || !lockedPositions.has(parseInt(e.target.dataset.order) - 1)) {
+                    e.target.classList.add('drag-over');
+                }
+            }
+            function handleDragLeave(e) {
+                e.target.classList.remove('drag-over');
+            }
+            function handleDrop(e) {
+                e.preventDefault();
+                e.target.classList.remove('drag-over');
+                if (draggedElement) {
+                    const zoneOrder = parseInt(e.target.dataset.order) - 1;
+
+                    // If zone is locked, don't allow drop
+                    if (lockedPositions.has(zoneOrder)) {
+                        return;
+                    }
+
+                    // Remove item from previous position if it was in a zone
+                    const previousZone = draggedElement.parentElement;
+                    if (previousZone.classList.contains('drop-zone')) {
+                        const prevOrder = parseInt(previousZone.dataset.order) - 1;
+                        delete dropOrder[prevOrder];
+                        previousZone.classList.remove('filled', 'correct', 'incorrect');
+                        previousZone.innerHTML = `Drop event ${previousZone.dataset.order} here`;
+                        lockedPositions.delete(prevOrder);
+                    }
+
+                    // If target zone has an item, move it back to source
+                    const existingItem = e.target.querySelector('.draggable-item');
+                    if (existingItem && !existingItem.classList.contains('locked')) {
+                        document.getElementById('drag-items').appendChild(existingItem);
+                        existingItem.classList.remove('locked', 'incorrect');
+                    }
+
+                    // Place the dragged item
+                    const itemIndex = parseInt(draggedElement.dataset.index);
+                    e.target.innerHTML = '';
+                    e.target.appendChild(draggedElement);
+                    e.target.classList.add('filled');
+
+                    dropOrder[zoneOrder] = itemIndex;
+
+                    // Check if this position is correct
+                    const correctOrder = window.correctOrder;
+                    const isCorrect = dropOrder[zoneOrder] === correctOrder[zoneOrder];
+
+                    if (isCorrect) {
+                        e.target.classList.add('correct');
+                        draggedElement.classList.add('locked');
+                        lockedPositions.add(zoneOrder);
+
+                        // Show positive feedback
+                        showPositiveFeedback(draggedElement);
+                    } else {
+                        e.target.classList.add('incorrect');
+                        draggedElement.classList.add('incorrect');
+
+                        // Show negative feedback
+                        showNegativeFeedback(draggedElement);
+                    }
+
+                    // Check if all positions are filled and correct
+                    if (Object.keys(dropOrder).length === dropZones.length) {
+                        checkCompleteOrder();
+                    }
+                }
+            }
+            function showPositiveFeedback(element) {
+                // Brief visual feedback for correct placement
+                element.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    element.style.transform = 'scale(1)';
+                }, 300);
+            }
+            function showNegativeFeedback(element) {
+                // Shake animation for incorrect placement
+                element.classList.add('incorrect');
+                setTimeout(() => {
+                    element.classList.remove('incorrect');
+                }, 500);
+            }
+            function checkCompleteOrder() {
+                let allCorrect = true;
+                const correctOrder = window.correctOrder;
+
+                for (let i = 0; i < correctOrder.length; i++) {
+                    if (dropOrder[i] !== correctOrder[i]) {
+                        allCorrect = false;
+                        break;
+                    }
+                }
+
+                if (allCorrect) {
+                    currentAnswer = true;
+                    document.getElementById('continue-btn').disabled = false;
+                    showFeedback(true, window.currentExplanation);
+
+                    // Lock all items
+                    document.querySelectorAll('.draggable-item').forEach(item => {
+                        item.classList.add('locked');
+                    });
+                }
+            }
+        }
+        // Add these new display functions after the existing ones:
+        function displayMotivationAnalyzer(step) {
+            const container = document.getElementById('quiz-content');
+
+            const card = document.createElement('div');
+            card.className = 'content-card';
+
+            let html = `
+                <div class="step-title">
+                    <div class="step-icon">🧠</div>
+                    ${step.title}
+                </div>
+                <div class="character-card">
+                    <div class="character-description">${step.context}</div>
+                </div>
+                <div class="motivation-analyzer">
+            `;
+
+            step.characters.forEach((character, index) => {
+                html += `
+                    <div class="character-analysis" onclick="analyzeCharacter(${index})">
+                        <h4>${character.name}</h4>
+                        <div class="motivation-layer">
+                            <strong>Stated Motivation:</strong> ${character.stated_motivation}
+                        </div>
+                        <div class="motivation-layer hidden" id="hidden-${index}">
+                            <strong>Hidden Factors:</strong>
+                            <ul>${character.hidden_factors.map(factor => `<li>${factor}</li>`).join('')}</ul>
+                        </div>
+                        <div class="motivation-layer hidden" id="conflict-${index}">
+                            <strong>Internal Conflict:</strong> ${character.internal_conflict}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                </div>
+                <div class="analysis-questions hidden" id="analysis-questions">
+                    <h4>Analysis Questions:</h4>
+                    ${step.analysis_questions.map(q => `<div class="question-item">${q}</div>`).join('')}
+                </div>
+            `;
+
+            card.innerHTML = html;
+            container.appendChild(card);
+
+            window.analyzedCharacters = 0;
+        }
+        function analyzeCharacter(index) {
+            const hiddenElement = document.getElementById(`hidden-${index}`);
+            const conflictElement = document.getElementById(`conflict-${index}`);
+
+            hiddenElement.classList.remove('hidden');
+            conflictElement.classList.remove('hidden');
+
+            window.analyzedCharacters++;
+
+            if (window.analyzedCharacters >= 2) {
+                document.getElementById('analysis-questions').classList.remove('hidden');
+                document.getElementById('continue-btn').disabled = false;
+            }
+        }
+        function displayInteractiveMapping(step) {
+            const container = document.getElementById('quiz-content');
+
+            const card = document.createElement('div');
+            card.className = 'content-card';
+
+            let html = `
+                <div class="step-title">
+                    <div class="step-icon">🗺️</div>
+                    ${step.title}
+                </div>
+                <div style="margin-bottom: 2rem; color: var(--text-secondary);">${step.instruction}</div>
+                <div class="interactive-mapping">
+                    <div class="mapping-sources">
+                        <h4>Institutions:</h4>
+            `;
+
+            step.connections.forEach((conn, index) => {
+                html += `
+                    <div class="mapping-item source" draggable="true" data-source="${conn.source}" data-index="${index}">
+                        ${conn.source}
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                    <div class="mapping-targets">
+                        <h4>Functions:</h4>
+            `;
+
+            step.connections.forEach((conn, index) => {
+                html += `
+                    <div class="mapping-target" data-target="${conn.target}" data-index="${index}">
+                        <div class="target-label">${conn.target}</div>
+                        <div class="connection-zone" ondrop="dropConnection(event)" ondragover="allowDrop(event)">
+                            Drop here
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+                <div class="mapping-feedback hidden" id="mapping-feedback"></div>
+            `;
+
+            card.innerHTML = html;
+            container.appendChild(card);
+
+            window.mappingConnections = step.connections;
+            window.correctMappings = 0;
+            initializeMappingDragDrop();
+        }
+        function initializeMappingDragDrop() {
+            const sources = document.querySelectorAll('.mapping-item.source');
+
+            sources.forEach(source => {
+                source.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', e.target.dataset.source);
+                    e.dataTransfer.setData('index', e.target.dataset.index);
+                });
+            });
+        }
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+        function dropConnection(event) {
+            event.preventDefault();
+            const source = event.dataTransfer.getData('text/plain');
+            const sourceIndex = event.dataTransfer.getData('index');
+            const target = event.currentTarget.parentElement.dataset.target;
+            const targetIndex = event.currentTarget.parentElement.dataset.index;
+
+            const connection = window.mappingConnections[sourceIndex];
+
+            if (connection.source === source && connection.target === target) {
+                event.currentTarget.innerHTML = `
+                    <div class="correct-connection">
+                        ✓ ${source}
+                        <div class="connection-description">${connection.description}</div>
+                    </div>
+                `;
+                event.currentTarget.classList.add('correct');
+                window.correctMappings++;
+
+                if (window.correctMappings === window.mappingConnections.length) {
+                    showMappingComplete();
+                }
+            } else {
+                event.currentTarget.innerHTML = `
+                    <div class="incorrect-connection">
+                        ✗ ${source}
+                    </div>
+                `;
+                event.currentTarget.classList.add('incorrect');
+                setTimeout(() => {
+                    event.currentTarget.innerHTML = 'Drop here';
+                    event.currentTarget.classList.remove('incorrect');
+                }, 2000);
+            }
+        }
+        function showMappingComplete() {
+            const feedback = document.getElementById('mapping-feedback');
+            feedback.innerHTML = `
+                <div class="feedback correct">
+                    <div class="feedback-title">✅ Excellent Analysis!</div>
+                    <div class="feedback-content">${window.mappingConnections[0].explanation || 'All connections mapped correctly!'}</div>
+                </div>
+            `;
+            feedback.classList.remove('hidden');
+            document.getElementById('continue-btn').disabled = false;
+        }
+        function displayScenarioBuilder(step) {
+            const container = document.getElementById('quiz-content');
+
+            const card = document.createElement('div');
+            card.className = 'content-card';
+
+            let html = `
+                <div class="step-title">
+                    <div class="step-icon">🏗️</div>
+                    ${step.title}
+                </div>
+                <div class="character-card">
+                    <div class="character-description">${step.context}</div>
+                </div>
+                <div class="scenario-builder">
+            `;
+
+            step.scenarios.forEach((scenario, scenarioIndex) => {
+                html += `
+                    <div class="scenario-question">
+                        <h4>${scenario.question}</h4>
+                        <div class="scenario-options">
+                `;
+
+                scenario.options.forEach((option, optionIndex) => {
+                    html += `
+                        <div class="scenario-option" onclick="selectScenarioOption(${scenarioIndex}, ${optionIndex})">
+                            <div class="option-choice">${option.choice}</div>
+                            <div class="option-consequence hidden" id="consequence-${scenarioIndex}-${optionIndex}">
+                                <strong>Consequence:</strong> ${option.consequence}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                </div>
+                <div class="scenario-insight hidden" id="scenario-insight">
+                    <div class="insight-box">
+                        <div class="insight-title">💡 Key Insight</div>
+                        <div class="insight-content">${step.insight}</div>
+                    </div>
+                </div>
+            `;
+
+            card.innerHTML = html;
+            container.appendChild(card);
+
+            window.scenarioChoices = 0;
+            window.totalScenarios = step.scenarios.length;
+        }
+        function selectScenarioOption(scenarioIndex, optionIndex) {
+            const consequence = document.getElementById(`consequence-${scenarioIndex}-${optionIndex}`);
+            const options = document.querySelectorAll(`.scenario-question:nth-child(${scenarioIndex + 1}) .scenario-option`);
+
+            // Remove selection from other options in this scenario
+            options.forEach(opt => opt.classList.remove('selected'));
+
+            // Select this option and show consequence
+            options[optionIndex].classList.add('selected');
+            consequence.classList.remove('hidden');
+
+            window.scenarioChoices++;
+
+            if (window.scenarioChoices >= window.totalScenarios) {
+                document.getElementById('scenario-insight').classList.remove('hidden');
+                document.getElementById('continue-btn').disabled = false;
+            }
+        }
+        // Add CSS for new interactive elements
+        const newStyles = `
+        .motivation-analyzer {
+            display: grid;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .character-analysis {
+            background: var(--surface-secondary);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .character-analysis:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        .motivation-layer {
+            margin: 1rem 0;
+            padding: 0.5rem 0;
+        }
+        .motivation-layer ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+        .analysis-questions {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--surface-secondary);
+            border-radius: var(--border-radius);
+        }
+        .question-item {
+            margin: 1rem 0;
+            padding: 0.5rem;
+            border-left: 3px solid var(--accent);
+            padding-left: 1rem;
+        }
+        .interactive-mapping {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .mapping-sources, .mapping-targets {
+            background: var(--surface-secondary);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+        }
+        .mapping-item {
+            background: var(--accent);
+            color: var(--primary);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: var(--border-radius);
+            cursor: grab;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .mapping-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+        .mapping-target {
+            margin: 1rem 0;
+        }
+        .target-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+        .connection-zone {
+            border: 2px dashed var(--text-secondary);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+        .connection-zone.correct {
+            border-color: var(--success);
+            background: rgba(48, 209, 88, 0.1);
+        }
+        .connection-zone.incorrect {
+            border-color: var(--error);
+            background: rgba(255, 69, 58, 0.1);
+        }
+        .correct-connection {
+            text-align: center;
+            color: var(--success);
+            font-weight: 600;
+        }
+        .connection-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        .scenario-builder {
+            margin: 2rem 0;
+        }
+        .scenario-question {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: var(--surface-secondary);
+            border-radius: var(--border-radius);
+        }
+        .scenario-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .scenario-option {
+            background: var(--surface);
+            border: 2px solid transparent;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .scenario-option:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        .scenario-option.selected {
+            border-color: var(--accent);
+            background: rgba(0, 122, 255, 0.1);
+        }
+        .option-choice {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+        .option-consequence {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        @media (max-width: 768px) {
+            .interactive-mapping {
+                grid-template-columns: 1fr;
+            }
+            .scenario-options {
+                grid-template-columns: 1fr;
+            }
+        }
+        `;
+        // Add the new styles to the document
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = newStyles;
+        document.head.appendChild(styleSheet);
+        // Event Handlers
+        function selectChoice(index, isCorrect) {
+            const choices = document.querySelectorAll('.choice-card');
+            choices.forEach(choice => choice.classList.remove('selected'));
+            choices[index].classList.add('selected');
+
+            currentAnswer = { index, isCorrect };
+            checkAnswer();
+        }
+        function highlightPhrase(phrase, index) {
+            const element = event.target;
+            element.classList.toggle('selected');
+
+            if (element.classList.contains('selected')) {
+                window.highlightedPhrases.push(phrase);
+                showInsight(phrase);
+            } else {
+                window.highlightedPhrases = window.highlightedPhrases.filter(p => p !== phrase);
+            }
+
+            if (window.highlightedPhrases.length >= 2) {
+                document.getElementById('continue-btn').disabled = false;
+            }
+        }
+        function showInsight(phrase) {
+            const insight = window.currentInsights[phrase];
+            if (insight) {
+                const container = document.getElementById('quiz-content');
+                const existingInsight = container.querySelector('.insight-box');
+
+                if (existingInsight) {
+                    existingInsight.remove();
+                }
+
+                const insightBox = document.createElement('div');
+                insightBox.className = 'insight-box';
+                insightBox.innerHTML = `
+                    <div class="insight-title">💡 "${phrase}"</div>
+                    <div class="insight-content">${insight}</div>
+                `;
+
+                container.appendChild(insightBox);
+            }
+        }
+        function updateSliderValue(value) {
+            document.getElementById('slider-display').textContent = value;
+            currentAnswer = value;
+        }
+        function handleReflectionInput(value) {
+            currentAnswer = value.trim();
+            document.getElementById('continue-btn').disabled = value.trim().length < 20;
+        }
+        function checkAnswer() {
+            const step = quizData[currentQuizType].steps[currentStep];
+
+            if (currentAnswer && currentAnswer.isCorrect !== undefined) {
+                showFeedback(currentAnswer.isCorrect, step.explanation);
+
+                if (currentAnswer.isCorrect) {
+                    document.getElementById('continue-btn').disabled = false;
+                } else {
+                    setTimeout(() => {
+                        resetChoices();
+                    }, 3000);
+                }
+            }
+        }
+        function showFeedback(isCorrect, explanation) {
+            const container = document.getElementById('quiz-content');
+            const existingFeedback = container.querySelector('.feedback');
+
+            if (existingFeedback) {
+                existingFeedback.remove();
+            }
+
+            const feedback = document.createElement('div');
+            feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+
+            feedback.innerHTML = `
+                <div class="feedback-title">
+                    ${isCorrect ? '✅ Excellent Analysis!' : '❌ Let\'s Think Deeper'}
+                </div>
+                <div class="feedback-content">
+                    ${explanation}
+                </div>
+            `;
+
+            container.appendChild(feedback);
+
+            // Update choice visual feedback
+            if (currentAnswer && currentAnswer.index !== undefined) {
+                const choices = document.querySelectorAll('.choice-card');
+                choices[currentAnswer.index].classList.add(isCorrect ? 'correct' : 'incorrect');
+            }
+        }
+        function resetChoices() {
+            const choices = document.querySelectorAll('.choice-card');
+            choices.forEach(choice => {
+                choice.classList.remove('selected', 'correct', 'incorrect');
+            });
+
+            const feedback = document.querySelector('.feedback');
+            if (feedback) feedback.remove();
+
+            currentAnswer = null;
+            document.getElementById('continue-btn').disabled = true;
+        }
+        function continueJourney() {
+            const quiz = quizData[currentQuizType];
+
+            if (currentStep < quiz.steps.length - 1) {
+                currentStep++;
+                saveProgress(currentQuizType, currentStep);
+                displayStep();
+            } else {
+                completeQuiz();
+            }
+        }
+        function completeQuiz() {
+            const quiz = quizData[currentQuizType];
+
+            // Mark as completed
+            saveProgress(currentQuizType, quiz.steps.length);
+
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('completion-container').classList.remove('hidden');
+
+            // Update completion display
+            document.getElementById('completion-icon').textContent = quiz.icon;
+            document.getElementById('completion-title').textContent = 'Journey Complete!';
+            document.getElementById('completion-message').textContent =
+                `You have gained profound insights into ${quiz.title.split(':')[0]}. These analytical skills will serve you in understanding literature, philosophy, and human nature.`;
+        }
+        function restartCurrentQuiz() {
+            if (currentQuizType) {
+                currentStep = 0;
+                userAnswers = [];
+                currentAnswer = null;
+
+                document.getElementById('completion-container').classList.add('hidden');
+                document.getElementById('quiz-container').style.display = 'block';
+
+                displayStep();
+            }
+        }
+        function updateProgress() {
+            const quiz = quizData[currentQuizType];
+            const progress = ((currentStep + 1) / quiz.steps.length) * 100;
+
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = `Step ${currentStep + 1} of ${quiz.steps.length}`;
+        }
+        function updateStepCounter() {
+            document.getElementById('current-step').textContent = currentStep + 1;
+            document.getElementById('total-steps').textContent = quizData[currentQuizType].steps.length;
+        }
+        // Enhanced Restart Functionality
+        function showRestartModal(quizType) {
+            const quiz = quizData[quizType];
+            const progress = loadProgress(quizType);
+
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.className = 'restart-modal-overlay';
+            modal.innerHTML = `
+                <div class="restart-modal">
+                    <div class="restart-modal-header">
+                        <h3>Restart ${quiz.title}?</h3>
+                        <button class="modal-close" onclick="closeRestartModal()">&times;</button>
+                    </div>
+                    <div class="restart-modal-content">
+                        <div class="current-progress">
+                            <h4>Current Progress</h4>
+                            <div class="progress-stats">
+                                <div class="stat">
+                                    <span class="stat-number">${progress.completedSteps}</span>
+                                    <span class="stat-label">Steps Completed</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-number">${Math.round((progress.completedSteps / progress.totalSteps) * 100)}%</span>
+                                    <span class="stat-label">Progress</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-number">${Math.round((Date.now() - (progress.lastAccessed || Date.now())) / (1000 * 60 * 60 * 24))}</span>
+                                    <span class="stat-label">Days Since Last Visit</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="restart-options">
+                            <div class="restart-option" onclick="confirmRestart('${quizType}', 'full')">
+                                <div class="option-icon">🔄</div>
+                                <div class="option-content">
+                                    <h4>Complete Restart</h4>
+                                    <p>Start from the very beginning and experience the full journey again</p>
+                                </div>
+                            </div>
+                            <div class="restart-option" onclick="confirmRestart('${quizType}', 'continue')">
+                                <div class="option-icon">▶️</div>
+                                <div class="option-content">
+                                    <h4>Continue Journey</h4>
+                                    <p>Resume from where you left off (Step ${progress.currentStep + 1})</p>
+                                </div>
+                            </div>
+                            <div class="restart-option" onclick="confirmRestart('${quizType}', 'review')">
+                                <div class="option-icon">📖</div>
+                                <div class="option-content">
+                                    <h4>Review Mode</h4>
+                                    <p>Quickly browse through completed steps for review</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Add event listener to close modal when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeRestartModal();
+                }
+            });
+        }
+        function closeRestartModal() {
+            const modal = document.querySelector('.restart-modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        function confirmRestart(quizType, mode) {
+            closeRestartModal();
+
+            switch(mode) {
+                case 'full':
+                    // Clear all progress and start fresh
+                    localStorage.removeItem(STORAGE_KEYS[quizType]);
+                    selectQuiz(quizType);
+                    showNotification('Starting fresh journey!', 'success');
+                    break;
+
+                case 'continue':
+                    // Continue from current progress
+                    selectQuiz(quizType);
+                    showNotification('Continuing your journey!', 'info');
+                    break;
+
+                case 'review':
+                    // Enter review mode
+                    enterReviewMode(quizType);
+                    showNotification('Entering review mode!', 'info');
+                    break;
+            }
+        }
+        function enterReviewMode(quizType) {
+            currentQuizType = quizType;
+            const quiz = quizData[quizType];
+            const progress = loadProgress(quizType);
+
+            // Set up review mode
+            window.reviewMode = true;
+            window.reviewSteps = [];
+
+            // Collect completed steps
+            for (let i = 0; i < progress.completedSteps; i++) {
+                window.reviewSteps.push(i);
+            }
+
+            if (window.reviewSteps.length === 0) {
+                showNotification('No completed steps to review yet!', 'warning');
+                return;
+            }
+
+            // Show review interface
+            document.getElementById('quiz-selection').style.display = 'none';
+            document.getElementById('quiz-container').style.display = 'block';
+            document.getElementById('completion-container').classList.add('hidden');
+
+            document.getElementById('quiz-title').textContent = quiz.title + ' - Review Mode';
+            document.getElementById('quiz-subtitle').textContent = 'Browse through your completed steps';
+
+            showReviewInterface();
+        }
+        function showReviewInterface() {
+            const container = document.getElementById('quiz-content');
+            const quiz = quizData[currentQuizType];
+
+            container.innerHTML = `
+                <div class="review-interface">
+                    <div class="review-header">
+                        <h3>Review Completed Steps</h3>
+                        <p>Click on any step to review its content</p>
+                    </div>
+                    <div class="review-grid">
+                        ${window.reviewSteps.map(stepIndex => {
+                            const step = quiz.steps[stepIndex];
+                            return `
+                                <div class="review-card" onclick="reviewStep(${stepIndex})">
+                                    <div class="review-card-number">${stepIndex + 1}</div>
+                                    <div class="review-card-title">${step.title}</div>
+                                    <div class="review-card-type">${step.type.replace('-', ' ')}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Update navigation for review mode
+            const navigation = document.querySelector('.navigation');
+            navigation.innerHTML = `
+                <button class="nav-btn secondary" onclick="exitReviewMode()">
+                    ← Exit Review Mode
+                </button>
+                <button class="nav-btn" onclick="backToSelection()">
+                    Choose Different Quiz
+                </button>
+            `;
+
+            // Hide progress bar in review mode
+            document.querySelector('.progress-bar-container').style.display = 'none';
+        }
+        function reviewStep(stepIndex) {
+            currentStep = stepIndex;
+            window.reviewMode = true;
+            displayStep();
+
+            // Update navigation for individual step review
+            const navigation = document.querySelector('.navigation');
+            navigation.innerHTML = `
+                <button class="nav-btn secondary" onclick="showReviewInterface()">
+                    ← Back to Review List
+                </button>
+                <button class="nav-btn secondary" onclick="exitReviewMode()">
+                    Exit Review Mode
+                </button>
+            `;
+        }
+        function exitReviewMode() {
+            window.reviewMode = false;
+            window.reviewSteps = [];
+            document.querySelector('.progress-bar-container').style.display = 'block';
+            backToSelection();
+        }
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <span class="notification-icon">
+                        ${type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️'}
+                    </span>
+                    <span class="notification-message">${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+
+        // NEW: Function to show premium content modal
+        function showPremiumModal() {
+            const modal = document.createElement('div');
+            modal.className = 'premium-modal-overlay';
+            modal.innerHTML = `
+                <div class="premium-modal">
+                    <button class="modal-close" onclick="closePremiumModal()">&times;</button>
+                    <span class="premium-icon">✨</span>
+                    <div class="premium-modal-content">
+                        <h3>Unlock Your Full Potential</h3>
+                        <p>Gain unrestricted access to all Literary Masterworks quizzes, deeper analyses, and advanced interactive tools.</p>
+                        <a href="https://wisewords01.com/kasse/?add-to-cart=466" class="purchase-btn" target="_blank">
+                            Get Full Version Now
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
+                        </a>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closePremiumModal();
+                }
+            });
+        }
+
+        // NEW: Function to close premium content modal
+        function closePremiumModal() {
+            const modal = document.querySelector('.premium-modal-overlay');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Update the existing selectQuiz function to show restart modal or premium modal
+        function selectQuizWithOptions(quizType) {
+            // If the quiz is NOT 'the-prince', show the premium modal
+            if (quizType !== 'the-prince') {
+                showPremiumModal();
+                return; // Stop further execution
+            }
+
+            // For 'the-prince' quiz, proceed with existing logic
+            const progress = loadProgress(quizType);
+
+            if (progress.completedSteps > 0) {
+                showRestartModal(quizType);
+            } else {
+                selectQuiz(quizType);
+            }
+        }
+    </script>
+</body>
+</html>
